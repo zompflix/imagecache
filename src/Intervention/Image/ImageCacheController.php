@@ -6,10 +6,17 @@ use Closure;
 use Intervention\Image\ImageManager;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Http\Response as IlluminateResponse;
-use Config;
+use Illuminate\Support\Facades\Config;
 
 class ImageCacheController extends BaseController
 {
+
+
+    /**
+     * @var null|Closure
+     */
+    protected $defaultImagePath = null;
+
     /**
      * Get HTTP response of either original image file or
      * template applied file.
@@ -55,7 +62,7 @@ class ImageCacheController extends BaseController
                 // build from filter template
                 $image->make($path)->filter($template);
             }
-        }, config('imagecache.lifetime'));
+        }, Config::get('imagecache.lifetime'));
 
         return $this->buildResponse($content);
     }
@@ -97,7 +104,7 @@ class ImageCacheController extends BaseController
      */
     protected function getTemplate($template)
     {
-        $template = config("imagecache.templates.{$template}");
+        $template = Config::get("imagecache.templates.{$template}");
 
         switch (true) {
             // closure template found
@@ -124,13 +131,19 @@ class ImageCacheController extends BaseController
     protected function getImagePath($filename)
     {
         // find file
-        foreach (config('imagecache.paths') as $path) {
+        foreach (Config::get('imagecache.paths') as $path) {
             // don't allow '..' in filenames
             $image_path = $path.'/'.str_replace('..', '', $filename);
             if (file_exists($image_path) && is_file($image_path)) {
                 // file found
                 return $image_path;
             }
+        }
+
+        $image_path = $this->getDefaultImagePath();
+
+        if ($image_path !== false) {
+            return $image_path;
         }
 
         // file not found
@@ -157,9 +170,28 @@ class ImageCacheController extends BaseController
         // return http response
         return new IlluminateResponse($content, $status_code, array(
             'Content-Type' => $mime,
-            'Cache-Control' => 'max-age='.(config('imagecache.lifetime')*60).', public',
+            'Cache-Control' => 'max-age='.(Config::get('imagecache.lifetime')*60).', public',
             'Content-Length' => strlen($content),
             'Etag' => $etag
         ));
     }
+
+
+    public function getDefaultImagePath() {
+        if (is_null($this->defaultImagePath)) {
+            return Config::get('image.default_path',public_path('default_image.png'));
+        }
+
+        return ($this->defaultImagePath)();
+    }
+
+    /**
+     * @param Closure|null $defaultImagePath
+     */
+    public function setDefaultImagePath(Closure $defaultImagePath)
+    {
+        $this->defaultImagePath = $defaultImagePath;
+    }
+
+
 }
