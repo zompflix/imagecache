@@ -12,6 +12,8 @@ class ImageCacheController extends BaseController
 {
 
 
+    protected $dynamicPaths = [];
+
     /**
      * @var null|Closure
      */
@@ -131,7 +133,8 @@ class ImageCacheController extends BaseController
     protected function getImagePath($filename)
     {
         // find file
-        foreach (Config::get('imagecache.paths') as $path) {
+        $paths = array_merge(Config::get('imagecache.paths',[]),$this->dynamicPaths);
+        foreach ($paths as $path) {
             // don't allow '..' in filenames
             $image_path = $path . '/' . str_replace('..', '', $filename);
             if (file_exists($image_path) && is_file($image_path)) {
@@ -193,5 +196,13 @@ class ImageCacheController extends BaseController
         $this->defaultImagePath = $defaultImagePath;
     }
 
+
+    public function setDynamicPaths(array $paths) {
+        $this->dynamicPaths = $paths;
+    }
+
+    public function addDynamicPaths(array $paths) {
+        $this->dynamicPaths = array_merge($this->dynamicPaths,$paths);
+    }
 
 }
