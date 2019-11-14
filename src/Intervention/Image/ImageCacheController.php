@@ -18,6 +18,9 @@ class ImageCacheController extends BaseController
      */
     protected $defaultImagePath = null;
 
+
+    protected static $dynamicCachePaths = [];
+
     /**
      * Get HTTP response of either original image file or
      * template applied file.
@@ -132,7 +135,7 @@ class ImageCacheController extends BaseController
     protected function getImagePath($filename)
     {
         // find file
-        $dynamicPaths = Image::getDynamicCachePaths();
+        $dynamicPaths = static::getDynamicCachePaths();
         $paths = array_merge(Config::get('imagecache.paths',[]),$dynamicPaths);
         foreach ($paths as $path) {
             // don't allow '..' in filenames
@@ -196,5 +199,21 @@ class ImageCacheController extends BaseController
         $this->defaultImagePath = $defaultImagePath;
     }
 
+
+    public static function setDynamicPaths(array $paths) {
+        static::$dynamicCachePaths = $paths;
+    }
+
+    public static function addDynamicPaths(array $paths) {
+        static::$dynamicCachePaths = array_merge(static::$dynamicCachePaths,$paths);
+    }
+
+    /**
+     * @return array
+     */
+    public static function getDynamicCachePaths()
+    {
+        return static::$dynamicCachePaths;
+    }
 
 }
