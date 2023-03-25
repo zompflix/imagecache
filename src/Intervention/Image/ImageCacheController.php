@@ -3,11 +3,7 @@
 namespace Intervention\Image;
 
 use Closure;
-<<<<<<< HEAD
 use Config;
-=======
-use Intervention\Image\Facades\Image;
->>>>>>> 01ff8f1 (added dynamic paths)
 use Intervention\Image\ImageManager;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Http\Response as IlluminateResponse;
@@ -69,7 +65,7 @@ class ImageCacheController extends BaseController
                 // build from filter template
                 $image->make($path)->filter($template);
             }
-        }, Config::get('imagecache.lifetime'));
+        }, config('imagecache.lifetime'));
 
         return $this->buildResponse($content);
     }
@@ -111,7 +107,7 @@ class ImageCacheController extends BaseController
      */
     protected function getTemplate($template)
     {
-        $template = Config::get("imagecache.templates.{$template}");
+        $template = config("imagecache.templates.{$template}");
 
         switch (true) {
             // closure template found
@@ -139,7 +135,7 @@ class ImageCacheController extends BaseController
     {
         // find file
         $dynamicPaths = static::getDynamicCachePaths();
-        $paths = array_merge(Config::get('imagecache.paths',[]),$dynamicPaths);
+        $paths = array_merge(config('imagecache.paths',[]),$dynamicPaths);
         foreach ($paths as $path) {
             // don't allow '..' in filenames
             $image_path = $path . '/' . str_replace('..', '', $filename);
@@ -188,7 +184,7 @@ class ImageCacheController extends BaseController
 
     public function getDefaultImagePath() {
         if (is_null($this->defaultImagePath)) {
-            return Config::get('image.default_path',public_path('default_image.png'));
+            return config('image.default_path',public_path('default_image.png'));
         }
 
         return ($this->defaultImagePath)();
