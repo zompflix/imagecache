@@ -3,7 +3,11 @@
 namespace Intervention\Image;
 
 use Closure;
+<<<<<<< HEAD
 use Config;
+=======
+use Intervention\Image\Facades\Image;
+>>>>>>> 01ff8f1 (added dynamic paths)
 use Intervention\Image\ImageManager;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Http\Response as IlluminateResponse;
@@ -11,8 +15,6 @@ use Illuminate\Http\Response as IlluminateResponse;
 class ImageCacheController extends BaseController
 {
 
-
-    protected $dynamicPaths = [];
 
     /**
      * @var null|Closure
@@ -133,7 +135,8 @@ class ImageCacheController extends BaseController
     protected function getImagePath($filename)
     {
         // find file
-        $paths = array_merge(Config::get('imagecache.paths',[]),$this->dynamicPaths);
+        $dynamicPaths = Image::getDynamicCachePaths();
+        $paths = array_merge(Config::get('imagecache.paths',[]),$dynamicPaths);
         foreach ($paths as $path) {
             // don't allow '..' in filenames
             $image_path = $path . '/' . str_replace('..', '', $filename);
@@ -196,13 +199,5 @@ class ImageCacheController extends BaseController
         $this->defaultImagePath = $defaultImagePath;
     }
 
-
-    public function setDynamicPaths(array $paths) {
-        $this->dynamicPaths = $paths;
-    }
-
-    public function addDynamicPaths(array $paths) {
-        $this->dynamicPaths = array_merge($this->dynamicPaths,$paths);
-    }
 
 }
