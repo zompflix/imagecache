@@ -1,5 +1,5 @@
 {
-    "name": "zompflix/imagecache",
+    "name": "intervention/imagecache",
     "description": "Caching extension for the Intervention Image Class",
     "homepage": "https://image.intervention.io",
     "keywords": [
